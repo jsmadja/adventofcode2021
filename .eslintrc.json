@@ -1,0 +1,30 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "jest/globals": true
+  },
+  "extends": [
+    "airbnb-base"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "jest"
+  ],
+  "rules": {
+    "max-len": [
+      2,
+      {
+        "code": 80,
+        "tabWidth": 4,
+        "ignoreComments": true,
+        "ignoreUrls": true
+      }
+    ]
+  }
+}
