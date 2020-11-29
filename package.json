@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "lint": "prettier --write . && eslint '**/*.[j|t]s' && prettier --check .",
-    "test": "jest"
+    "test": "jest",
+    "test:watch": "npm t -- --watch"
   },
   "repository": {
     "type": "git",
@@ -42,5 +43,8 @@
     "prettier-eslint": "^12.0.0",
     "ts-node": "^9.0.0",
     "typescript": "^4.1.2"
+  },
+  "dependencies": {
+    "jest-each": "^26.6.2"
   }
 }
