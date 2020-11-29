@@ -5,7 +5,10 @@
     "jest/globals": true
   },
   "extends": [
-    "airbnb-base"
+    "airbnb-base",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -24,6 +27,14 @@
         "tabWidth": 4,
         "ignoreComments": true,
         "ignoreUrls": true
+      }
+    ],
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        "js": "never",
+        "ts": "never"
       }
     ]
   }
