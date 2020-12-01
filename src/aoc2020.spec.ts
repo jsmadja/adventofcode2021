@@ -7,7 +7,7 @@ function sumIsEqualTo2020(first, second) {
 function find2NumbersWhichSumTo2020From(data: number[]) {
   for (let firstIndex = 0; firstIndex < data.length; firstIndex++) {
     const sumable = data.find((item) =>
-      sumIsEqualTo2020(data[firstIndex], item),
+      sumIsEqualTo2020(data[firstIndex], item)
     );
     if (sumable) return [data[firstIndex], sumable];
   }
@@ -49,7 +49,7 @@ describe('Day 1', () => {
       expect(find3NumbersWhichSumTo2020From(data)).toStrictEqual([
         979,
         366,
-        675,
+        675
       ]);
     });
     test('should resolve example puzzle input', () => {

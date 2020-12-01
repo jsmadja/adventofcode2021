@@ -22,14 +22,14 @@ describe('Day 1', () => {
       [12, 2],
       [14, 2],
       [1969, 654],
-      [100756, 33583],
+      [100756, 33583]
     ];
 
     each(testData).test(
       'For a mass of %d, the fuel required is %d',
       (mass, requiredFuel) => {
         expect(calculateRequiredFuel(mass)).toBe(requiredFuel);
-      },
+      }
     );
 
     test('should compute full required fuel', () => {
@@ -37,7 +37,7 @@ describe('Day 1', () => {
         input
           .split('\n')
           .map((mass) => calculateRequiredFuel(+mass))
-          .reduce((accumulator, requiredFuel) => accumulator + requiredFuel, 0),
+          .reduce((accumulator, requiredFuel) => accumulator + requiredFuel, 0)
       ).toBe(3479429);
     });
   });
@@ -46,14 +46,14 @@ describe('Day 1', () => {
     const testData = [
       [14, 2],
       [1969, 966],
-      [100756, 50346],
+      [100756, 50346]
     ];
 
     each(testData).test(
       'For a mass of %d, the true required fuel is %d',
       (mass, requiredFuel) => {
         expect(calculateTrueRequiredFuel(mass)).toBe(requiredFuel);
-      },
+      }
     );
 
     test('should compute true full required fuel', () => {
@@ -61,7 +61,7 @@ describe('Day 1', () => {
         input
           .split('\n')
           .map((mass) => calculateTrueRequiredFuel(+mass))
-          .reduce((accumulator, requiredFuel) => accumulator + requiredFuel, 0),
+          .reduce((accumulator, requiredFuel) => accumulator + requiredFuel, 0)
       ).toBe(5216273);
     });
   });

@@ -20,6 +20,10 @@
     "jest"
   ],
   "rules": {
+    "no-plusplus": "off",
+    "comma-dangle": "off",
+    "implicit-arrow-linebreak": "off",
+    "function-paren-newline": "off",
     "max-len": [
       2,
       {
