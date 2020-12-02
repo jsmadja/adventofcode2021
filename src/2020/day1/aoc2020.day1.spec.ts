@@ -1,4 +1,4 @@
-import input from './2020/day1/input';
+import input from './input';
 
 function sumIsEqualTo2020(first, second) {
   return first + second === 2020;
