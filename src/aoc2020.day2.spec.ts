@@ -8,6 +8,14 @@ interface Policy {
   letter: string;
 }
 
+interface TobogganPolicy {
+  exclusivePosition: {
+    first: number;
+    second: number;
+  };
+  letter: string;
+}
+
 class Password {
   private password: string;
 
@@ -21,6 +29,15 @@ class Password {
     return (
       charCount >= policy.repetitionRange.min &&
       charCount <= policy.repetitionRange.max
+    );
+  }
+
+  validateToboggan(policy: TobogganPolicy) {
+    const letter1 = this.password[policy.exclusivePosition.first - 1];
+    const letter2 = this.password[policy.exclusivePosition.second - 1];
+    return (
+      (letter1 === policy.letter || letter2 === policy.letter) &&
+      letter1 !== letter2
     );
   }
 }
@@ -37,12 +54,33 @@ function toPolicy(policyString: string) {
   };
 }
 
+function toTobogganPolicy(policyString: string): TobogganPolicy {
+  const [range, letter] = policyString.split(' ');
+  const [first, second] = range.split('-');
+  return {
+    exclusivePosition: {
+      first: +first,
+      second: +second
+    },
+    letter
+  };
+}
+
 function parseInputLine(line) {
   const [policyString, passwordString] = line
     .split(':')
     .map((parts) => parts.trim());
   const password = new Password(passwordString);
   const policy = toPolicy(policyString);
+  return { policy, password };
+}
+
+function parseInputLine2(line) {
+  const [policyString, passwordString] = line
+    .split(':')
+    .map((parts) => parts.trim());
+  const password = new Password(passwordString);
+  const policy = toTobogganPolicy(policyString);
   return { policy, password };
 }
 
@@ -96,6 +134,48 @@ describe('Day 2', () => {
         .map(parseInputLine)
         .filter(({ policy, password }) => password.validate(policy)).length;
       expect(count).toBe(622);
+    });
+  });
+  describe('Part 2', () => {
+    test('1-3 a: abcde is a valid password with Toboggan policy', () => {
+      const policy = {
+        exclusivePosition: {
+          first: 1,
+          second: 3
+        },
+        letter: 'a'
+      } as TobogganPolicy;
+      const password = new Password('abcde');
+      expect(password.validateToboggan(policy)).toBe(true);
+    });
+    test('1-3 b: cdefg is not a valid password with Toboggan policy', () => {
+      const policy = {
+        exclusivePosition: {
+          first: 1,
+          second: 3
+        },
+        letter: 'b'
+      } as TobogganPolicy;
+      const password = new Password('cdefg');
+      expect(password.validateToboggan(policy)).toBe(false);
+    });
+    test('2-9 c: ccccccccc is not a valid password with Toboggan policy', () => {
+      const policy = {
+        exclusivePosition: {
+          first: 2,
+          second: 9
+        },
+        letter: 'c'
+      } as TobogganPolicy;
+      const password = new Password('ccccccccc');
+      expect(password.validateToboggan(policy)).toBe(false);
+    });
+    test('should validate puzzle 2', () => {
+      const count = input
+        .map(parseInputLine2)
+        .filter(({ policy, password }) => password.validateToboggan(policy))
+        .length;
+      expect(count).toBe(263);
     });
   });
 });
