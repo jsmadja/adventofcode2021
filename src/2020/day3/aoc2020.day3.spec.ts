@@ -6,6 +6,11 @@ enum CellType {
   OPEN_SQUARE
 }
 
+interface Slope {
+  right: number;
+  down: number;
+}
+
 function getCellTypeOf(cell: string): CellType {
   return cell === '#' ? CellType.TREE : CellType.OPEN_SQUARE;
 }
@@ -17,11 +22,16 @@ function getCellTypeInLineAtPosition(line: string, position: number): CellType {
   return getCellTypeOf(line.split('')[position]);
 }
 
-function getEncounteredTreeCount(template: string) {
+function getEncounteredTreeCount(template: string, slope: Slope) {
   return template
     .split('\n')
     .slice(1)
-    .map((line, index) => getCellTypeInLineAtPosition(line, (index + 1) * 3))
+    .map((line, index) => {
+      if (index % slope.down === 0) {
+        return getCellTypeInLineAtPosition(line, (index + 1) * slope.right);
+      }
+      return CellType.OPEN_SQUARE;
+    })
     .filter((type) => type === CellType.TREE).length;
 }
 
@@ -56,11 +66,31 @@ describe('Day 3', () => {
       expect(cellType).toBe(CellType.TREE);
     });
     test('Compute puzzle 1 example', () => {
-      expect(getEncounteredTreeCount(input)).toBe(7);
+      expect(getEncounteredTreeCount(input, { right: 3, down: 1 })).toBe(7);
     });
 
     test('Compute puzzle 1 input', () => {
-      expect(getEncounteredTreeCount(puzzle1Input)).toBe(187);
+      expect(getEncounteredTreeCount(puzzle1Input, { right: 3, down: 1 })).toBe(
+        187
+      );
+    });
+  });
+  describe('Part 2', () => {
+    test('Compute puzzle 2 input', () => {
+      function getPuzzle2Answer(slopes: Slope[]): number {
+        return slopes
+          .map((slope) => getEncounteredTreeCount(puzzle1Input, slope))
+          .reduce((prev, current) => prev * current, 1);
+      }
+
+      const slopes = [
+        { right: 1, down: 1 },
+        { right: 3, down: 1 },
+        { right: 5, down: 1 },
+        { right: 7, down: 1 },
+        { right: 1, down: 2 }
+      ];
+      expect(getPuzzle2Answer(slopes)).toBe(4723283400);
     });
   });
 });
