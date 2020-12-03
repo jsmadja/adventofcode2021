@@ -22,17 +22,19 @@ function getCellTypeInLineAtPosition(line: string, position: number): CellType {
   return getCellTypeOf(line.split('')[position]);
 }
 
+function isTree(type) {
+  return type === CellType.TREE;
+}
+
 function getEncounteredTreeCount(template: string, slope: Slope) {
   return template
     .split('\n')
     .slice(1)
-    .map((line, index) => {
-      if (index % slope.down === 0) {
-        return getCellTypeInLineAtPosition(line, (index + 1) * slope.right);
-      }
-      return CellType.OPEN_SQUARE;
-    })
-    .filter((type) => type === CellType.TREE).length;
+    .filter((line, index) => (index + 1) % slope.down === 0)
+    .map((line, index) =>
+      getCellTypeInLineAtPosition(line, (index + 1) * slope.right)
+    )
+    .filter(isTree).length;
 }
 
 describe('Day 3', () => {
