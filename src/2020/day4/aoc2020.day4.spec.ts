@@ -90,10 +90,7 @@ function isValid(passport: Passport) {
     return false;
   }
   const matchedPid = passport.pid.match('[0-9]{9}');
-  if (!matchedPid || matchedPid[0] !== passport.pid) {
-    return false;
-  }
-  return true;
+  return !(!matchedPid || matchedPid[0] !== passport.pid);
 }
 
 describe('Day 4', () => {
