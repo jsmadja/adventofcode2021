@@ -41,4 +41,15 @@ describe('Day 5', () => {
       expect(answer).toBe(998);
     });
   });
+  describe('Part 2', () => {
+    const seats = puzzle1Input
+      .split('\n')
+      .map(getSeatIDFrom)
+      .sort((a, b) => a - b);
+    let index = 0;
+    while (index < seats.length && seats[index] + 1 === seats[index + 1]) {
+      index++;
+    }
+    expect(seats[index] + 1).toBe(676);
+  });
 });
