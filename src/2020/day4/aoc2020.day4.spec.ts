@@ -175,12 +175,12 @@ hcl:#cfa07d byr:1929`;
         .filter(isValid);
       expect(length).toBe(2);
     });
-    test.skip('should find puzzle 1 answer', () => {
+    test('should find puzzle 1 answer', () => {
       const { length } = puzzle1Input
         .split('\n\n')
         .map(createPassportFrom)
         .filter(isValid);
-      expect(length).toBe(204);
+      expect(length).toBe(179);
     });
   });
   describe('Part 2', () => {
