@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "jest-each": "^26.6.2",
+    "lodash": "^4.17.20",
     "npm-check": "^5.9.2"
   }
 }
