@@ -6,7 +6,7 @@ interface Bag {
   bags?: Bag[];
 }
 
-function createBagFrom(rule: string) {
+function createBagFrom(rule: string, onlyOneOccurrence: boolean = false) {
   const bagName = rule.split('bags contain')[0].trim();
   if (rule.indexOf('no other bags') >= 0) {
     return { name: bagName };
@@ -16,15 +16,13 @@ function createBagFrom(rule: string) {
     .trim()
     .split('.')[0]
     .split(', ')
-    .map((bagDescripiont) => {
-      const num = +bagDescripiont.split(' ')[0];
-      const strings = bagDescripiont.split(' ');
+    .map((bagDescripion) => {
+      const num = +bagDescripion.split(' ')[0];
+      const strings = bagDescripion.split(' ');
       const name = strings.slice(1, strings.length - 1).join(' ');
-      /*
-        return _.range(num).map((n) => ({
-          name
-        })); */
-      return { name };
+      return _.range(onlyOneOccurrence ? 1 : num).map(() => ({
+        name
+      }));
     });
   return {
     name: bagName,
@@ -48,13 +46,40 @@ function canContain(allBags: Bag[], rule: Bag, color: string) {
   });
 }
 
-function findAnswer(rules: Bag[], color: string) {
+function getContainablesCountOf(rules: Bag[], color: string) {
   return (
     rules.map((rule) => canContain(rules, rule, color)).filter((s) => !!s)
       .length - 1
   );
 }
 
+function getSizeOf(bag, bags) {
+  if (!bag.bags) {
+    return 0;
+  }
+  return bag.bags
+    .map((b) => {
+      const bagDefinition = bags.find((z) => z.name === b.name);
+      return getSizeOf(bagDefinition, bags) + 1;
+    })
+    .reduce((a, b) => a + b, 0);
+}
+
+function getShinyGoldBag(
+  bagRules: ({ name: string } | { bags: any; name: string })[]
+) {
+  return bagRules.find((b) => b.name === 'shiny gold');
+}
+
+const BAGS_EXAMPLE = `light red bags contain 1 bright white bag, 2 muted yellow bags.
+dark orange bags contain 3 bright white bags, 4 muted yellow bags.
+bright white bags contain 1 shiny gold bag.
+muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.
+shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.
+dark olive bags contain 3 faded blue bags, 4 dotted black bags.
+vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.
+faded blue bags contain no other bags.
+dotted black bags contain no other bags.`;
 describe('Day 7', () => {
   describe('Part 1', () => {
     const lightRed = {
@@ -62,6 +87,9 @@ describe('Day 7', () => {
       bags: [
         {
           name: 'bright white'
+        },
+        {
+          name: 'muted yellow'
         },
         {
           name: 'muted yellow'
@@ -92,7 +120,25 @@ describe('Day 7', () => {
             name: 'posh orange'
           },
           {
+            name: 'posh orange'
+          },
+          {
             name: 'striped lime'
+          },
+          {
+            name: 'striped lime'
+          },
+          {
+            name: 'striped lime'
+          },
+          {
+            name: 'plaid crimson'
+          },
+          {
+            name: 'plaid crimson'
+          },
+          {
+            name: 'plaid crimson'
           },
           {
             name: 'plaid crimson'
@@ -108,24 +154,16 @@ describe('Day 7', () => {
       });
     });
     test('should get example puzzle 1 answer', () => {
-      const bagRules = `light red bags contain 1 bright white bag, 2 muted yellow bags.
-dark orange bags contain 3 bright white bags, 4 muted yellow bags.
-bright white bags contain 1 shiny gold bag.
-muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.
-shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.
-dark olive bags contain 3 faded blue bags, 4 dotted black bags.
-vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.
-faded blue bags contain no other bags.
-dotted black bags contain no other bags.`
-        .split('\n')
-        .map(createBagFrom);
+      const bagRules = BAGS_EXAMPLE.split('\n').map(createBagFrom);
 
-      const count = findAnswer(bagRules, 'shiny gold');
+      const count = getContainablesCountOf(bagRules, 'shiny gold');
       expect(count).toBe(4);
     });
     test('should get puzzle 1 answer', () => {
-      const bagRules = puzzle1Input.split('\n').map(createBagFrom);
-      const count = findAnswer(bagRules, 'shiny gold');
+      const bagRules = puzzle1Input
+        .split('\n')
+        .map((n) => createBagFrom(n, true));
+      const count = getContainablesCountOf(bagRules, 'shiny gold');
       expect(count).toBe(235);
     });
     test('simple contain', () => {
@@ -158,6 +196,20 @@ dotted black bags contain no other bags.`
       const contains = canContain(allBags, bagBlue, 'yellow');
 
       expect(contains).toBe(true);
+    });
+  });
+  describe('Part 2', () => {
+    test('example puzzle 2', () => {
+      const bagRules = BAGS_EXAMPLE.split('\n').map((s) =>
+        createBagFrom(s, false)
+      );
+      const shiny = getShinyGoldBag(bagRules);
+      expect(getSizeOf(shiny, bagRules)).toBe(32);
+    });
+    test('puzzle 2', () => {
+      const bags = puzzle1Input.split('\n').map((s) => createBagFrom(s, false));
+      const shiny = getShinyGoldBag(bags);
+      expect(getSizeOf(shiny, bags)).toBe(158493);
     });
   });
 });
