@@ -52,6 +52,47 @@ function executeInstructions(
   return newState;
 }
 
+function isLooping(
+  instructions: Command[],
+  state: State = { accumulator: 0, offset: 0, history: [] }
+) {
+  const instruction = instructions[state.offset];
+  const newState = execute(instruction, state);
+  if (state.history.indexOf(newState.offset) >= 0) {
+    return true;
+  }
+  if (state.offset < instructions.length - 1) {
+    return isLooping(instructions, newState);
+  }
+  return false;
+}
+
+function substituteNopJmpInstruction(instruction: Command) {
+  if (instruction.name === 'nop') {
+    return { ...instruction, name: 'jmp' };
+  }
+  if (instruction.name === 'jmp') {
+    return { ...instruction, name: 'nop' };
+  }
+  return instruction;
+}
+
+function createNewSets(instructions: Command[]): Command[][] {
+  const sets = [];
+  for (let offset = 0; offset < instructions.length; offset++) {
+    const currentInstruction = instructions[offset];
+    if (
+      currentInstruction.name === 'jmp' ||
+      currentInstruction.name === 'nop'
+    ) {
+      const newSet = instructions.slice();
+      newSet[offset] = substituteNopJmpInstruction(instructions[offset]);
+      sets.push(newSet);
+    }
+  }
+  return sets;
+}
+
 describe('Day 8', () => {
   describe('Part 1', () => {
     test('should create nop instruction', () => {
@@ -175,6 +216,84 @@ acc +6`;
       const instructions = puzzle1Input.split('\n').map(parseCommand);
       const state = executeInstructions(instructions);
       expect(state.accumulator).toBe(1941);
+    });
+  });
+  describe('Part 2', () => {
+    test('should tell that instructions are looping', () => {
+      const example = `nop +0
+acc +1
+jmp +4
+acc +3
+jmp -3
+acc -99
+acc +1
+jmp -4
+acc +6`;
+      const instructions = example.split('\n').map(parseCommand);
+      const looping = isLooping(instructions);
+      expect(looping).toBe(true);
+    });
+    test('should create a new instruction with replacing nop to jmp', () => {
+      expect(
+        substituteNopJmpInstruction({
+          name: 'nop',
+          argument: 0
+        })
+      ).toStrictEqual({
+        name: 'jmp',
+        argument: 0
+      });
+    });
+    test('should create a new instruction with replacing jmp to nop', () => {
+      expect(
+        substituteNopJmpInstruction({
+          name: 'jmp',
+          argument: 0
+        })
+      ).toStrictEqual({
+        name: 'nop',
+        argument: 0
+      });
+    });
+    test('should not create a new instruction for acc', () => {
+      expect(
+        substituteNopJmpInstruction({
+          name: 'acc',
+          argument: 0
+        })
+      ).toStrictEqual({
+        name: 'acc',
+        argument: 0
+      });
+    });
+    test('should generate new instructions sets', () => {
+      const instructions = [
+        {
+          name: 'nop',
+          argument: 0
+        },
+        {
+          name: 'jmp',
+          argument: 1
+        }
+      ];
+      expect(createNewSets(instructions)).toStrictEqual([
+        [
+          { name: 'jmp', argument: 0 },
+          { name: 'jmp', argument: 1 }
+        ],
+        [
+          { name: 'nop', argument: 0 },
+          { name: 'nop', argument: 1 }
+        ]
+      ]);
+    });
+    test('shoud compute the non-looping set', () => {
+      const instructions = puzzle1Input.split('\n').map(parseCommand);
+      const sets = createNewSets(instructions);
+      const validSet = sets.find((set) => !isLooping(set));
+      const state = executeInstructions(validSet);
+      expect(state.accumulator).toBe(2096);
     });
   });
 });
