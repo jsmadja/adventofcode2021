@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import puzzle1Input from './puzzle1Input';
 
-function findPair2(
+function findPair(
   expectedSum: number,
   preambule: number[]
 ): number[] | undefined {
@@ -13,39 +13,34 @@ function findPair2(
     .find((pair) => pair[0] + pair[1] === expectedSum);
 }
 
-function findPair(
-  expectedSum: number,
-  preambule: number[]
-): number[] | undefined {
-  for (let i = 0; i < preambule.length; i++) {
-    for (let j = i + 1; j < preambule.length; j++) {
-      if (preambule[i] + preambule[j] === expectedSum) {
-        return [preambule[i], preambule[j]];
-      }
-    }
-  }
-  return undefined;
-}
-
 function findInvalidNumber(preambule: number[], numbers: number[]) {
   const number = numbers[0];
-  const pair = findPair2(number, preambule);
+  const pair = findPair(number, preambule);
   if (pair) {
     const newPreambule = preambule.slice(1);
     newPreambule.push(number);
-    console.log(
-      `On cherchait ${number} dans le preambule ${preambule} car les nombres à traiter étaient ${numbers}\n ${
-        pair[0]
-      } + ${
-        pair[1]
-      } = ${number}, alors le preambule devient ${newPreambule} et les nombres à chercher ${numbers.slice(
-        1
-      )}`
-    );
     return findInvalidNumber(newPreambule, numbers.slice(1));
   }
-  console.log(`Impossible de trouver ${number} avec le preambule ${preambule}`);
   return number;
+}
+
+function findContiguousSet(sumToFind: number, fullSet: number[]) {
+  let sum = 0;
+  let contiguous = [];
+  let offset = 0;
+  let size = 2;
+  while (sum !== sumToFind) {
+    contiguous = fullSet.slice(offset, offset + size);
+    sum = contiguous.reduce((a, b) => a + b, 0);
+    if (sum > sumToFind) {
+      offset += 1;
+      size = 2;
+    }
+    if (size < sumToFind) {
+      size++;
+    }
+  }
+  return contiguous;
 }
 
 describe('Day 9', () => {
@@ -133,5 +128,44 @@ describe('Day 9', () => {
       expect(invalidNumber).toBe(15353384);
     });
   });
-  describe('Part 2', () => {});
+  describe('Part 2', () => {
+    test('should find a contiguous set with example', () => {
+      const numbers = `35
+20
+15
+25
+47
+40
+62
+55
+65
+95
+102
+117
+150
+182
+127
+219
+299
+277
+309
+576`
+        .split('\n')
+        .map((x) => +x);
+
+      const set = findContiguousSet(127, numbers);
+      expect(set).toStrictEqual([15, 25, 47, 40]);
+
+      const min = Math.min(...set);
+      const max = Math.max(...set);
+      expect(min + max).toBe(62);
+    });
+    test('should find a contiguous set with puzzle input', () => {
+      const numbers = puzzle1Input.split('\n').map((x) => +x);
+      const set = findContiguousSet(15353384, numbers);
+      const min = Math.min(...set);
+      const max = Math.max(...set);
+      expect(min + max).toBe(2466556);
+    });
+  });
 });

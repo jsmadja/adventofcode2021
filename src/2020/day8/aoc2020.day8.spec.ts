@@ -1,8 +1,8 @@
 import puzzle1Input from './puzzle1Input';
 
 interface Command {
-  argument: number;
   name: string;
+  argument: number;
 }
 
 interface State {
