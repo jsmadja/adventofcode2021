@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 export default `bright olive bags contain 5 dotted white bags, 2 wavy lavender bags.
 plaid brown bags contain 3 bright lime bags, 5 plaid coral bags.
 dim coral bags contain 1 shiny maroon bag, 2 bright orange bags, 3 clear lavender bags.

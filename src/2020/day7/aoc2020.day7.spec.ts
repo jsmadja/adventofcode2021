@@ -108,6 +108,7 @@ describe('Day 7', () => {
     });
     test('can create mirrored yellow bag from string', () => {
       const rule =
+        // eslint-disable-next-line max-len
         'mirrored yellow bags contain 1 dull maroon bag, 2 posh orange bags, 3 striped lime bags, 4 plaid crimson bags.';
       const parsedBag = createBagFrom(rule);
       expect(parsedBag).toStrictEqual({
