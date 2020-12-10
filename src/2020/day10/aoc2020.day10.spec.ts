@@ -189,5 +189,33 @@ describe('Day 10', () => {
       expect(solution).toBe(1914);
     });
   });
-  describe('Part 2', () => {});
+  describe('Part 2', () => {
+    test('should pass example', () => {
+      const numbers = puzzle1Input.split('\n').map((x) => +x);
+      const adapters = { 0: true }; // add the wall adapter as well
+      for (let i = 0; i < numbers.length; i++) {
+        adapters[numbers[i]] = true;
+      }
+      const max = Math.max(...numbers);
+
+      // dictionary mapping adapter to number of paths to finish
+      const paths = { [max]: 1 };
+
+      // helper
+      function get(index, offset) {
+        return paths[index + offset] ? paths[index + offset] : 0;
+      }
+
+      for (let i = max - 1; i >= 0; i--) {
+        if (adapters[i]) {
+          // sum all possible paths for an index
+          paths[i] = [1, 2, 3]
+            .map((jump) => get(i, jump))
+            .reduce((a, b) => a + b);
+        }
+      }
+
+      expect(paths[0]).toBe(9256148959232);
+    });
+  });
 });
