@@ -1,112 +1,133 @@
 import puzzle1Input from './puzzle1Input';
 
+type Position = {
+  north: number;
+  south: number;
+  east: number;
+  west: number;
+};
+
 function executeInstructions(
   initialDirection: 'NORTH' | 'SOUTH' | 'EAST' | 'WEST',
-  initialPosition: { north: number; south: number; east: number; west: number },
+  shipInitialPosition: Position,
+  waypointInitialPosition: Position,
   instructions: string[]
 ) {
   if (instructions.length === 0) {
-    return initialPosition;
+    return [shipInitialPosition, waypointInitialPosition];
   }
   const [nextInstruction, ...rest] = instructions;
   const command = nextInstruction[0];
   const value = +nextInstruction.slice(1);
-  const position = initialPosition;
+  const shipPosition = shipInitialPosition;
+  const waypointPosition = waypointInitialPosition;
   const direction = initialDirection;
 
   switch (command) {
     case 'N':
-      position.north += value;
+      waypointPosition.north += value;
       break;
     case 'S':
-      position.south += value;
+      waypointPosition.south += value;
       break;
     case 'E':
-      position.east += value;
+      waypointPosition.east += value;
       break;
     case 'W':
-      position.west += value;
+      waypointPosition.west += value;
       break;
     case 'F':
-      if (direction === 'NORTH') {
-        return executeInstructions(direction, position, [`N${value}`, ...rest]);
-      }
-      if (direction === 'SOUTH') {
-        return executeInstructions(direction, position, [`S${value}`, ...rest]);
-      }
-      if (direction === 'EAST') {
-        return executeInstructions(direction, position, [`E${value}`, ...rest]);
-      }
-      if (direction === 'WEST') {
-        return executeInstructions(direction, position, [`W${value}`, ...rest]);
-      }
-      break;
+      shipPosition.north += waypointPosition.north * value;
+      shipPosition.east += waypointPosition.east * value;
+      shipPosition.west += waypointPosition.west * value;
+      shipPosition.south += waypointPosition.south * value;
+      return executeInstructions(
+        direction,
+        shipPosition,
+        waypointInitialPosition,
+        rest
+      );
     case 'R':
       if (value > 0) {
+        const temp = waypointPosition.north;
+        waypointPosition.north = waypointPosition.west;
+        waypointPosition.west = waypointPosition.south;
+        waypointPosition.south = waypointPosition.east;
+        waypointPosition.east = temp;
         const instruction = `${command}${value - 90}`;
+        // eslint-disable-next-line default-case
         switch (direction) {
           case 'NORTH':
-            return executeInstructions('EAST', position, [
+            return executeInstructions('EAST', shipPosition, waypointPosition, [
               instruction,
               ...rest
             ]);
           case 'SOUTH':
-            return executeInstructions('WEST', position, [
+            return executeInstructions('WEST', shipPosition, waypointPosition, [
               instruction,
               ...rest
             ]);
           case 'WEST':
-            return executeInstructions('NORTH', position, [
-              instruction,
-              ...rest
-            ]);
+            return executeInstructions(
+              'NORTH',
+              shipPosition,
+              waypointPosition,
+              [instruction, ...rest]
+            );
           case 'EAST':
-            return executeInstructions('SOUTH', position, [
-              instruction,
-              ...rest
-            ]);
+            return executeInstructions(
+              'SOUTH',
+              shipPosition,
+              waypointPosition,
+              [instruction, ...rest]
+            );
         }
       }
       break;
     case 'L':
       if (value > 0) {
+        const temp = waypointPosition.north;
+        waypointPosition.north = waypointPosition.east;
+        waypointPosition.east = waypointPosition.south;
+        waypointPosition.south = waypointPosition.west;
+        waypointPosition.west = temp;
         const instruction = `${command}${value - 90}`;
+        // eslint-disable-next-line default-case
         switch (direction) {
           case 'NORTH':
-            return executeInstructions('WEST', position, [
+            return executeInstructions('WEST', shipPosition, waypointPosition, [
               instruction,
               ...rest
             ]);
           case 'SOUTH':
-            return executeInstructions('EAST', position, [
+            return executeInstructions('EAST', shipPosition, waypointPosition, [
               instruction,
               ...rest
             ]);
           case 'WEST':
-            return executeInstructions('SOUTH', position, [
-              instruction,
-              ...rest
-            ]);
+            return executeInstructions(
+              'SOUTH',
+              shipPosition,
+              waypointPosition,
+              [instruction, ...rest]
+            );
           case 'EAST':
-            return executeInstructions('NORTH', position, [
-              instruction,
-              ...rest
-            ]);
+            return executeInstructions(
+              'NORTH',
+              shipPosition,
+              waypointPosition,
+              [instruction, ...rest]
+            );
         }
       }
       break;
     default:
       break;
   }
-  return executeInstructions(direction, position, rest);
+  return executeInstructions(direction, shipPosition, waypointPosition, rest);
 }
 
-function toManathan(position: {
-  north: number;
-  west: number;
-  east: number;
-  south: number;
-}) {
+function toManathan(position: Position) {
   return {
     ew: position.east - position.west,
     ns: position.south - position.north
@@ -114,51 +135,65 @@ function toManathan(position: {
 }
 
 describe('Day 12', () => {
-  describe('Part 1', () => {
-    test('should pass example', () => {
-      const instructions = `F10
-N3
-F7
-R90
-F11`;
-
-      const initialPosition = {
-        east: 0,
+  describe('Part 2', () => {
+    it('should pass example', () => {
+      const shipPosition = {
         north: 0,
+        east: 0,
         south: 0,
         west: 0
       };
-      const position = executeInstructions(
-        'EAST',
-        initialPosition,
-        instructions.split('\n')
-      );
-      expect(position).toStrictEqual({
-        north: 3,
+      const waypointPoint = {
+        north: 1,
+        east: 10,
         west: 0,
-        east: 17,
-        south: 11
+        south: 0
+      };
+      const [newShipPosition, newWaypointPosition] = executeInstructions(
+        'EAST',
+        shipPosition,
+        waypointPoint,
+        ['F10', 'N3', 'F7', 'R90', 'F11']
+      );
+      expect(newShipPosition).toStrictEqual({
+        east: 214,
+        north: 38,
+        west: 0,
+        south: 110
+      });
+      expect(newWaypointPosition).toStrictEqual({
+        east: 4,
+        north: 0,
+        west: 0,
+        south: 10
       });
 
-      expect(toManathan(position)).toStrictEqual({ ew: 17, ns: 8 });
-      expect(toManathan(position).ew + toManathan(position).ns).toBe(25);
+      const manathan = toManathan(newShipPosition);
+      expect(manathan.ew).toBe(214);
+      expect(manathan.ns).toBe(72);
+      expect(manathan.ew + manathan.ns).toBe(286);
     });
-    test('should pass puzzle', () => {
-      const instructions = puzzle1Input;
-
-      const initialPosition = {
-        east: 0,
+    it('should pass puzzle', () => {
+      const shipPosition = {
         north: 0,
+        east: 0,
         south: 0,
         west: 0
       };
-      const position = executeInstructions(
+      const waypointPoint = {
+        north: 1,
+        east: 10,
+        west: 0,
+        south: 0
+      };
+      const [newShipPosition] = executeInstructions(
         'EAST',
-        initialPosition,
-        instructions.split('\n')
+        shipPosition,
+        waypointPoint,
+        puzzle1Input.split('\n')
       );
-      const manathan = toManathan(position);
-      expect(Math.abs(manathan.ew + manathan.ns)).toBe(1133);
+      const manathan = toManathan(newShipPosition);
+      expect(Math.abs(manathan.ew) + Math.abs(manathan.ns)).toBe(61053);
     });
   });
 });
